@@ -1,52 +1,52 @@
 import pygame as pg
-import pygame.time
-from graph import MainDot, Dot, LineDots
+from graph import MainDot, LineDots, RandDot
+from buttons import Buttons
+from show_info import show_text
 
 
 class Game:
     def __init__(self):
         self.screen = pg.display.get_surface()
-        self.dot_a = MainDot(x=250, y=650)
-        self.dot_b = MainDot(x=475, y=250)
-        self.dot_c = MainDot(x=700, y=650)
-        self.dot_line_ab = LineDots((self.dot_a.x, self.dot_a.y), (self.dot_b.x, self.dot_b.y))
-        self.dot_line_bc = LineDots((self.dot_b.x, self.dot_b.y), (self.dot_c.x, self.dot_c.y))
-        self.dot_line_ca = LineDots((self.dot_c.x, self.dot_c.y), (self.dot_a.x, self.dot_a.y))
-        self.dot_line_ab.create_dot()
-        self.dot_line_bc.create_dot()
-        self.dot_line_ca.create_dot()
-        #self.new_dot = Dot(pos=(450, 350))
-        self.dots = [self.dot_a, self.dot_b, self.dot_c, self.dot_line_ab, self.dot_line_bc, self.dot_line_ca]
-        self.cooldown = False
-        self.cooldown_duration = 300
-        self.cooldown_start = 0
+        self.vertices, self.lines, self.dots = self.create_triangle()
+        self.buttons = Buttons(self)
+        self.dot_create_cooldown = False
+        self.dot_create_cooldown_duration = 0
+        self.dot_create_cooldown_start = 0
 
     def run(self):
         for dot in self.dots:
             dot.draw()
-        self.events()
-        self.cooldowns()
+        self.buttons.run()
+        self.create_dot()
+        self.dot_cooldown()
+        show_text(f"DOTS={len(self.dots)} | DELAY={self.dot_create_cooldown_duration}")
 
-    def events(self):
-        keys = pg.key.get_pressed()
-        if not self.cooldown:
-            if keys[pg.K_ESCAPE]:
-                self.dot_a = MainDot()
-                self.dot_b = MainDot()
-                self.dot_c = MainDot()
-                self.dot_line_ab = LineDots((self.dot_a.x, self.dot_a.y), (self.dot_b.x, self.dot_b.y))
-                self.dot_line_bc = LineDots((self.dot_b.x, self.dot_b.y), (self.dot_c.x, self.dot_c.y))
-                self.dot_line_ca = LineDots((self.dot_c.x, self.dot_c.y), (self.dot_a.x, self.dot_a.y))
-                self.dot_line_ab.create_dot()
-                self.dot_line_bc.create_dot()
-                self.dot_line_ca.create_dot()
-                self.dots = [self.dot_a, self.dot_b, self.dot_c, self.dot_line_ab, self.dot_line_bc,
-                             self.dot_line_ca]
-                self.cooldown_start = pygame.time.get_ticks()
-                self.cooldown = True
+    def create_triangle(self):
+        dot_a = MainDot()
+        dot_b = MainDot()
+        dot_c = MainDot()
+        dot_line_ab = LineDots((dot_a.x, dot_a.y), (dot_b.x, dot_b.y))
+        dot_line_bc = LineDots((dot_b.x, dot_b.y), (dot_c.x, dot_c.y))
+        dot_line_ca = LineDots((dot_c.x, dot_c.y), (dot_a.x, dot_a.y))
 
-    def cooldowns(self):
-        if self.cooldown:
+        vertices = (dot_a, dot_b, dot_c)
+        lines = (dot_line_ab, dot_line_bc, dot_line_ca)
+        dot_rand = RandDot(vertices, lines, first=True, color='yellow')
+
+        dots = [dot_a, dot_b, dot_c, dot_line_ab, dot_line_bc,
+                     dot_line_ca, dot_rand]
+
+        return vertices, lines, dots
+
+    def create_dot(self):
+        if not self.dot_create_cooldown:
+            dot = RandDot(self.vertices, self.lines, self.dots, color='yellow')
+            self.dots.append(dot)
+            self.dot_create_cooldown = True
+            self.dot_create_cooldown_start = pg.time.get_ticks()
+
+    def dot_cooldown(self):
+        if self.dot_create_cooldown:
             current_time = pg.time.get_ticks()
-            if current_time - self.cooldown_start >= self.cooldown_duration:
-                self.cooldown = False
+            if current_time - self.dot_create_cooldown_start >= self.dot_create_cooldown_duration:
+                self.dot_create_cooldown = False
