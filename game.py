@@ -1,30 +1,30 @@
 import pygame as pg
 from graph import MainDot, LineDots, RandDot, FirstDot
 from buttons import Buttons
-from show_info import show_text
+from random import choice
 
 
 class Game:
     def __init__(self):
         self.screen = pg.display.get_surface()
-        self.vertices, self.lines, self.dots = self.create_triangle()
+        self.show_outline = True
+        self.vertices, self.lines, self.last_dot = self.create_triangle()
         self.buttons = Buttons(self)
         self.dot_create_cooldown = False
         self.dot_create_cooldown_duration = 0
         self.dot_create_cooldown_start = 0
         self.game_stop = False
+        self.n = 1
 
     def run(self):
-        for dot in self.dots:
-            dot.draw()
         self.buttons.run()
-        show_text(f"DOTS={len(self.dots)} | DELAY={self.dot_create_cooldown_duration}")
-
         if not self.game_stop:
             self.create_dot()
             self.dot_cooldown()
 
     def create_triangle(self):
+        self.screen.fill('black')
+        self.n = 0
         dot_a = MainDot()
         dot_b = MainDot()
         dot_c = MainDot()
@@ -34,17 +34,26 @@ class Game:
 
         vertices = (dot_a, dot_b, dot_c)
         lines = (dot_line_ab, dot_line_bc, dot_line_ca)
-        dot_rand = FirstDot(vertex=vertices[-1], color='yellow')
+        random_vertex = choice(vertices)
+        first_dot = FirstDot(vertex=random_vertex, color='yellow')
 
-        dots = [dot_a, dot_b, dot_c, dot_line_ab, dot_line_bc,
-                dot_line_ca, dot_rand]
+        dots = [dot_a, dot_b, dot_c, first_dot]
 
-        return vertices, lines, dots
+        for dot in dots:
+            dot.draw()
+
+        if self.show_outline:
+            for line in lines:
+                line.draw()
+
+        return vertices, lines, dots[-1]
 
     def create_dot(self):
         if not self.dot_create_cooldown:
-            dot = RandDot(vertices=self.vertices, last_dot=self.dots[-1], color='yellow')
-            self.dots.append(dot)
+            self.n += 1
+            dot = RandDot(self.vertices, self.last_dot, 'yellow')
+            dot.draw()
+            self.last_dot = dot
             self.dot_create_cooldown = True
             self.dot_create_cooldown_start = pg.time.get_ticks()
 

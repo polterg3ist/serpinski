@@ -6,7 +6,7 @@ class Main:
     def __init__(self):
         pg.init()
         pg.display.set_caption("SERPINSKI")
-        self.FPS = 360
+        self.FPS = 1000
         self.start_ticks = pg.time.get_ticks()
         self.clock = pg.time.Clock()
         self.screen = pg.display.set_mode((900, 900))
@@ -14,11 +14,10 @@ class Main:
 
     def run(self):
         while True:
-            self.screen.fill('black')
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     exit()
-            pg.display.set_caption(f"SERPINSKI | FPS={int(self.clock.get_fps())}")
+            pg.display.set_caption(f"SERPINSKI | N={self.game.n} DELAY={self.game.dot_create_cooldown_duration}")
             self.game.run()
             pg.display.update()
             self.clock.tick(self.FPS)

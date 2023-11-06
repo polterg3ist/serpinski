@@ -38,7 +38,7 @@ class LineDots(Dot):
         self.create_dots()
 
     def create_dots(self):
-        dots_amount = int(self.distance // 5) or 2
+        dots_amount = int(self.distance // 20) or 2
 
         mult = self.distance / dots_amount
         position = self.vec.copy()
@@ -46,7 +46,7 @@ class LineDots(Dot):
         for _ in range(dots_amount-1):
             position.x += self.direction.x * mult
             position.y += self.direction.y * mult
-            dot = Dot(pos=(position.x, position.y), radius=1, color='black')
+            dot = Dot(pos=(position.x, position.y), radius=1)
             self.dots.append(dot)
 
     def draw(self):
@@ -101,11 +101,8 @@ class RandDot(Dot):
         vertex_vec = pg.math.Vector2(vertex.x, vertex.y)
         last_dot_vec = pg.math.Vector2(last_dot.x, last_dot.y)
         direction = (vertex_vec - last_dot_vec).normalize()
-        distance = (vertex_vec - last_dot_vec).magnitude() // 2
-        last_dot_vec.x += direction.x * distance
-        last_dot_vec.y += direction.y * distance
+        distance = (vertex_vec - last_dot_vec).magnitude() / 2
+        last_dot_vec.x += round(direction.x * distance)
+        last_dot_vec.y += round(direction.y * distance)
 
         return last_dot_vec.x, last_dot_vec.y
-
-
-

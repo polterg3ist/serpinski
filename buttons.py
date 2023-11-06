@@ -16,7 +16,7 @@ class Buttons:
         keys = pg.key.get_pressed()
         if not self.cooldown:
             if keys[pg.K_ESCAPE]:
-                self.game.vertices, self.game.lines, self.game.dots = self.game.create_triangle()
+                self.game.vertices, self.game.lines, self.game.last_dot = self.game.create_triangle()
                 self.cooldown_start = pg.time.get_ticks()
                 self.cooldown = True
             if keys[pg.K_MINUS] or keys[pg.K_EQUALS]:
