@@ -1,5 +1,5 @@
 import pygame as pg
-from graph import MainDot, LineDots, RandDot
+from graph import MainDot, LineDots, RandDot, FirstDot
 from buttons import Buttons
 from show_info import show_text
 
@@ -12,14 +12,17 @@ class Game:
         self.dot_create_cooldown = False
         self.dot_create_cooldown_duration = 0
         self.dot_create_cooldown_start = 0
+        self.game_stop = False
 
     def run(self):
         for dot in self.dots:
             dot.draw()
         self.buttons.run()
-        self.create_dot()
-        self.dot_cooldown()
         show_text(f"DOTS={len(self.dots)} | DELAY={self.dot_create_cooldown_duration}")
+
+        if not self.game_stop:
+            self.create_dot()
+            self.dot_cooldown()
 
     def create_triangle(self):
         dot_a = MainDot()
@@ -31,16 +34,16 @@ class Game:
 
         vertices = (dot_a, dot_b, dot_c)
         lines = (dot_line_ab, dot_line_bc, dot_line_ca)
-        dot_rand = RandDot(vertices, lines, first=True, color='yellow')
+        dot_rand = FirstDot(vertex=vertices[-1], color='yellow')
 
         dots = [dot_a, dot_b, dot_c, dot_line_ab, dot_line_bc,
-                     dot_line_ca, dot_rand]
+                dot_line_ca, dot_rand]
 
         return vertices, lines, dots
 
     def create_dot(self):
         if not self.dot_create_cooldown:
-            dot = RandDot(self.vertices, self.lines, self.dots, color='yellow')
+            dot = RandDot(vertices=self.vertices, last_dot=self.dots[-1], color='yellow')
             self.dots.append(dot)
             self.dot_create_cooldown = True
             self.dot_create_cooldown_start = pg.time.get_ticks()

@@ -23,10 +23,15 @@ class Buttons:
                 self.cooldown_start = pg.time.get_ticks()
                 self.cooldown = True
             if keys[pg.K_MINUS]:
-                self.game.dot_create_cooldown_duration -= 100
-
+                if self.game.dot_create_cooldown > 0:
+                    self.game.dot_create_cooldown_duration -= 100
             if keys[pg.K_EQUALS]:
-                self.game.dot_create_cooldown_duration += 100
+                if self.game.dot_create_cooldown < 3000:
+                    self.game.dot_create_cooldown_duration += 100
+            if keys[pg.K_SPACE]:
+                self.game.game_stop = not self.game.game_stop
+                self.cooldown_start = pg.time.get_ticks()
+                self.cooldown = True
 
     def cooldowns(self):
         if self.cooldown:

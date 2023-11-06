@@ -54,13 +54,29 @@ class LineDots(Dot):
             dot.draw()
 
 
-class RandDot(Dot):
-    def __init__(self, vertices: tuple, lines: tuple, dots: list = None, first=False, color='green'):
-        super().__init__(color=color, radius=1)
-        if first:
+class FirstDot(Dot):
+    def __init__(self, color, radius: int = 1, full_random=False, vertex=None, lines=None):
+        """
+        :param color:
+        :param radius:
+        :param full_random:
+        :param vertex:
+        :param lines:
+
+        full random argument means that first dot would create in random place inside of triangle
+        Otherwise first dot would create near to some MainDot
+        In second variant dot will never spawn in a 'wrong place'
+        """
+        super().__init__(color=color, radius=radius)
+        # if full_random flag activated lines should be provided
+        # if full_random flag isn't activated argument 'vertex' should be provided
+        if full_random:
             self.x, self.y = self.get_xy_random(lines)
         else:
-            self.x, self.y = self.get_xy_vertex(vertices, dots)
+            self.x, self.y = self.get_xy_vertex(vertex)
+
+    def get_xy_vertex(self, vertex):
+        return vertex.x+1, vertex.y+1
 
     def get_xy_random(self, lines: tuple):
         rand_dot_1 = choice(lines[-1].dots)
@@ -69,16 +85,19 @@ class RandDot(Dot):
         dot2_vec = pg.math.Vector2(x=rand_dot_2.x, y=rand_dot_2.y)
         direction = (dot1_vec - dot2_vec).normalize()
         distance = (dot1_vec - dot2_vec).magnitude() // 2
-
         dot1_vec.x -= direction.x * distance
         dot1_vec.y -= direction.y * distance
 
         return dot1_vec.x, dot1_vec.y
 
-    def get_xy_vertex(self, vertices: tuple, dots: list):
+
+class RandDot(Dot):
+    def __init__(self, vertices: tuple, last_dot, color='green'):
+        super().__init__(color=color, radius=1)
+        self.x, self.y = self.get_xy_vertex(vertices, last_dot)
+
+    def get_xy_vertex(self, vertices: tuple, last_dot):
         vertex = choice(vertices)
-        last_dot = dots[-1]
-        print(last_dot.x, last_dot.y, vertex.x, vertex.y)
         vertex_vec = pg.math.Vector2(vertex.x, vertex.y)
         last_dot_vec = pg.math.Vector2(last_dot.x, last_dot.y)
         direction = (vertex_vec - last_dot_vec).normalize()
